@@ -175,5 +175,31 @@ int main(void) {
     printf("\n");
   }
   printf("};\n\n");
+
+/* make a Verilog version for the testbench */
+  FILE *fp;
+  fp = fopen("golden.v", "w+");
+  fprintf(fp, "module golden (\n");
+  fprintf(fp, "  input  wire [7:0] a,\n");
+  fprintf(fp, "  output reg [7:0] s, si\n");
+  fprintf(fp, ");\n");
+  fprintf(fp, "  reg [15:0] v;\n");
+  fprintf(fp, "  assign s  = v[15:8];\n");
+  fprintf(fp, "  assign si = v[7:0];\n\n");
+  fprintf(fp, "  always @* begin \n");
+  fprintf(fp, "    case(a)\n");
+  for (i = 0; i < 16; i++) {
+    for (j = 0; j < 16; j++) {
+      int u = i * 16 + j;
+      fprintf(fp, "    8'h%02x: v = 16'h%02x%02x;\n",
+      u, Sbox_tbl[u], iSbox_tbl[u]);
+    }
+  }
+  fprintf(fp, "    default: v = 0;\n");
+  fprintf(fp, "    endcase\n");
+  fprintf(fp, "  end\n\n");
+  fprintf(fp, "endmodule\n\n");
+  fclose(fp);
+
   return (0);
 }
