@@ -363,22 +363,24 @@ endmodule
 /* test program: put Sbox output into register */
 /* with MASKING: the input mask M and output mask N must be given */
 /*   NOTE: these two 8-bit masks must be random and INDEPENDENT */
-module Sbox_m ( A, M, N, S, Si, CLK );
+module Sbox_m ( A, M, N, encrypt, S, CLK );
     input  [7:0] A;
     input  [7:0] M;
     input  [7:0] N;
+    input  encrypt;
     output [7:0] S;
-    output [7:0] Si;
     input  CLK  /* synthesis syn_noclockbuf=1 */ ;
-    reg    [7:0] S;
-    reg    [7:0] Si;
+    reg    [7:0] S, Ai, Mi, Ni;
     wire   [7:0] s;
-    wire   [7:0] si;
+    reg    dir;
     
-    bSbox sbe(A, M, N, 1, s);
-    bSbox sbd(A, M, N, 0, si);
+    bSbox uut(Ai, Mi, Ni, encrypt, s);
+
     always @ (posedge CLK) begin
-    S <= s;
-    Si <= si;
+        S <= s;
+        Ai <= A; /* register the inputs */
+        Mi <= M;
+        Ni <= N;
+        dir <= encrypt;
     end
 endmodule
